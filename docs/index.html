@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="bower_components/EasyAutocomplete/dist/easy-autocomplete.min.css">
+
+</head>
+<body>
+
+  <input id="device" type="text" placeholder="Enter a Device Phone Name..." class="form-control">
+
+  <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="bower_components/EasyAutocomplete/dist/jquery.easy-autocomplete.min.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+    const token = '5709f80e6ee7002082000204ece6b47ec6d19bbfb7d43e98'
+    let searchValue
+    $('#device')
+      .on('keydown', e => {
+        searchValue = $('#device').val()
+        console.log(`searchValue is ${searchValue}`);
+      })
+      .easyAutocomplete({
+          url: device => `https://fonoapi.freshpixl.com/v1/getdevice?device=${device}`,
+          getValue: "DeviceName",
+          list: {
+            onChooseEvent: function() {
+              const index = $('#device').getSelectedItemIndex();
+              const url = `https://fonoapi.freshpixl.com/v1/getdevice?device=${searchValue}&position=${index}&token=${token}`
+              console.log(searchValue);
+              console.log(url);
+              $.get(url)
+                .then( result => result[0] )
+                .then( ({ DeviceName, Brand, nfc }) => ({ DeviceName, Brand, nfc }) )
+                .then( console.log )
+            }
+          },
+          ajaxSettings: {
+            beforeSend: function(request) {
+              request.setRequestHeader('Accept', 'application/json');
+            },
+            data: { token }
+          }
+
+      });
+  </script>
+
+</body>
+</html>
